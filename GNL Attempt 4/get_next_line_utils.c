@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:58:13 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/12 10:50:38 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/12 15:10:37 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,70 +22,53 @@ static size_t	get_len(char *str, size_t start)
 	return (i);
 }
 
-char	*create_g_save(void)
+char	*get_file(int fd, char *saved)
 {
-	g_save = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!g_save)
+	char	buf[BUFFER_SIZE + 1];
+	char	*new_s;
+	size_t	saved_len;
+	size_t	read_len;
+
+	read_len = read(fd, buf, BUFFER_SIZE);
+	if (read_len == -1)
 		return (NULL);
-	g_save[BUFFER_SIZE] = '\0';
-	return (g_save);
+	if (buf[0] == '\0')
+		return (NULL);
+	buf[read_len] = '\0';
+	saved_len = get_len(saved, 0);
+	new_s = (char *)malloc(((BUFFER_SIZE + saved_len) + 1) * sizeof(char));
+	if (!new_s)
+		return (NULL);
+	ft_strcpy(new_s, saved, 0, 0);
+	ft_strcpy(new_s, buf, saved_len, 0);
+	return (new_s);
 }
 
-char	*get_file(int fd)
-{
-	char	*buf;
-	char	*new_g_s;
-	size_t	g_save_len;
-
-	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buf)
-		return (NULL);
-	read(fd, buf, BUFFER_SIZE);
-	if (buf[0] == '\0' && ft_free(buf, NULL) == 1)
-		return (NULL);
-	buf[BUFFER_SIZE] = '\0';
-	g_save_len = get_len(g_save, 0);
-	new_g_s = (char *)malloc(((BUFFER_SIZE + g_save_len) + 1) * sizeof(char));
-	if (!new_g_s)
-	{
-		free(buf);
-		return (NULL);
-	}
-	ft_strcpy(new_g_s, g_save, 0, 0);
-	ft_strcpy(new_g_s, buf, g_save_len, 0);
-	free(g_save);
-	g_save = new_g_s;
-	free(buf);
-	return (g_save);
-}
-
-char	*get_line(ssize_t res)
+char	*get_line(ssize_t res, char *saved)
 {
 	char	*line;
 
-	line = (char *)malloc((res + 2) * sizeof(char));
+	line = (char *)malloc((res + 1) * sizeof(char));
 	if (!line)
 		return (NULL);
 	line[res + 1] = '\0';
 	while (res >= 0)
 	{
-		line[res] = g_save[res];
+		line[res] = saved[res];
 		res--;
 	}
 	return (line);
 }
 
-char	*get_rest(ssize_t res)
+void	save_rest(ssize_t res, char *saved, char *rest)
 {
 	size_t	rest_len;
-	char	*rest;
+	size_t	i;
 
-	rest_len = get_len(g_save, res + 1);
-	rest = (char *)malloc((rest_len + 1) * sizeof(char));
-	if (!rest)
-		return (NULL);
-	ft_strcpy(rest, g_save, 0, res + 1);
-	free(g_save);
-	g_save = rest;
-	return (g_save);
+	rest_len = get_len(saved, res + 1);
+	i = 0;
+	while (rest_len++ < BUFFER_SIZE + 1)
+	{
+		saved[i++] = rest[rest_len];
+	}
 }

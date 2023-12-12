@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:57:54 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/12 10:56:11 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/12 16:25:47 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ int	ft_free(char *str1, char *str2)
 		free(str1);
 	if (str2)
 		free(str2);
-	if (g_save)
-		free(g_save);
 	return (1);
 }
 
@@ -36,62 +34,54 @@ void	ft_strcpy(char *dest, char *src, size_t dest_start, size_t src_start)
 	dest[src_start] = '\0';
 }
 
-static ssize_t	check_g_save(void)
+static ssize_t	check_saved(char *saved)
 {
 	ssize_t	i;
 
 	i = 0;
-	if (!g_save)
-		return (-2);
-	else if (g_save[i] == '\0' && g_save[i + 1] == '\0')
+	if (saved[i] == '\0' && saved[i + 1] == '\0')
 		return (-1);
-	while (g_save[i] && g_save[i] != '\n')
+	while (saved[i] && saved[i] != '\n')
 		i++;
 	return (i);
 }
 
-static char	*case_manager(ssize_t res, int fd)
+static char	*case_manager(ssize_t res, int fd, char *saved)
 {
-	char	*tmp;
+	char	*n_save;
+	char	*line;
+	char	*rest;
 
-	if (res == -2)
+	if (res == -1)
 	{
-		tmp = create_g_save();
-		g_save = tmp;
+		n_save = get_file(fd, saved);
+		res = check_saved(n_save);
 	}
-	else if (res == -1)
+	if (!n_save)
+		return (NULL);
+	line = get_line(res, saved);
+	save_rest(res, saved, n_save);
+	if (!line || !rest)
 	{
-		tmp = get_file(fd);
-		g_save = tmp;
-	}
-	else
-	{
-		tmp = get_line(res);
-		g_save = get_rest(res);
-	}
-	if (!tmp || !g_save)
-	{
-		ft_free(tmp, NULL);
+		ft_free(n_save, NULL);
 		return (NULL);
 	}
-	return (tmp);
+	return (line);
 }
 
 char	*get_next_line(int fd)
 {
 	char	*line;
 	ssize_t	res;
+	static char	saved[BUFFER_SIZE + 1] = "\0";
 
 	if (BUFFER_SIZE == 0)
-	{
-		ft_free(NULL, NULL);
 		return (NULL);
-	}
 	res = -1;
 	while (res < 0)
 	{
-		res = check_g_save();
-		line = case_manager(res, fd);
+		res = check_saved(saved);
+		line = case_manager(res, fd, saved);
 		if (!line)
 			return (NULL);
 	}

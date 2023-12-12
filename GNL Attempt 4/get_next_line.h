@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:57:32 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/12 10:50:55 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/12 15:10:32 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,12 @@
 #endif
 
 char	*get_next_line(int fd);
-int	    ft_free(char *buf, char *nbuf);
+int	    ft_free(char *str1, char *str2);
 void	ft_strcpy(char *dest, char *src, size_t dest_start, size_t src_start);
-char	*create_g_save(void);
-char	*get_file(int fd);
-char	*get_line(ssize_t res);
-char	*get_rest(ssize_t res);
+char	*get_file(int fd, char *saved);
+char	*get_line(ssize_t res, char *saved);
+void	save_rest(ssize_t res, char *saved, char *rest);
 
-static char	*g_save = NULL;
+
 
 #endif
