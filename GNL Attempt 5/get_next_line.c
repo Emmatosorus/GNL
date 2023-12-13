@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:57:54 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/12 18:24:37 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/13 18:08:42 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@ char	*save_buf(char *buffer, char *line, int fd)
 	char	*total;
 
 	total = ft_strjoin(line, buffer);
-	free(line);
 	if (!total)
-		return (NULL);
+		return (free(line), NULL);
+	free(line);
 	line = total;
 	return (line);
 }
@@ -28,80 +28,93 @@ char	*get_line(char *buffer, char *line)
 {
 	char	*total;
 	char	*tmp2;
-	size_t	i;
-	size_t	cr_pos;
+	ssize_t	i;
+	size_t	cr_p;
 
 	total = ft_strjoin(line, buffer);
 	if (!total)
-		return (NULL);
-	cr_pos = check_str(total);
-	tmp2 = ft_calloc(cr_pos + 2, sizeof(char));
+		return (free(line), NULL);
+	cr_p = check_str(total);
+	tmp2 = ft_calloc(cr_p + 2, sizeof(char));
 	if (!tmp2)
-	{
-		free(total);
-		return (NULL);
-	}
+		return (free(total), free(line), NULL);
+	i = -1;
+	while (total[++i] && i <= cr_p)
+		tmp2[i] = total[i];
+	cr_p = check_str(buffer) + 1;
+	if (cr_p != BUFFER_SIZE && BUFFER_SIZE != 1)
+		buffer = ft_memmove(buffer, buffer + cr_p, ft_strlen(buffer + cr_p));
+	else
+		buffer[0] = 0;
 	free(line);
-	while (total[i] && i <= cr_pos)
-		tmp2[i] = total[i++];
-	cr_pos = check_str(buffer) + 1;
-	buffer = ft_memmove(buffer, buffer + cr_pos, ft_strlen(buffer) - cr_pos);
-	free(total);
 	line = tmp2;
-	return (line);
+	return (free(total), line);
 }
 
-size_t	check_str(char *str)
+ssize_t	check_str(char *str)
 {
-	size_t i;
+	ssize_t	i;
 
 	i = 0;
 	if (str[i] == '\0')
 		return (-1);
 	while (str[i] && str[i] != '\n')
 		i++;
-	return(i);
+	if (str[i] == '\0')
+		return (-2);
+	return (i);
 }
 
-char	*case_manager(ssize_t state, int fd, char *buffer, char *line)
+char	*case_manager(ssize_t *state, int fd, char *buffer, char *line)
 {
-	char	*tmp;
-	char	*save;
+	ssize_t	tmp;
 
-	if (state == -1)
+	if (state[0] == -1)
 	{
-		tmp = read_file();
-		if (!tmp)
-			return (NULL);
-		return ("");
+		tmp = read_file(fd, buffer, line);
+		if (tmp == -1)
+			return (free(line), NULL);
 	}
 	else
 	{
-		if (state + 1 == BUFFER_SIZE)
+		if (state[0] == -2)
+		{
 			line = save_buf(buffer, line, fd);
+			tmp = read_file(fd, buffer, line);
+			if (tmp == -1)
+				return (free(line), NULL);
+		}
 		else
 			line = get_line(buffer, line);
 		if (!line)
 			return (NULL);
 	}
+	if (tmp == -2)
+		state[0] = -2;
 	return (line);
 }
 
 char	*get_next_line(int fd)
 {
-	char	*line;
-	ssize_t	state;
+	char		*line;
+	ssize_t		state[1];
 	static char	buffer[BUFFER_SIZE + 1] = "\0";
 
-	if (BUFFER_SIZE == 0)
+	if (read(fd, &line, 0) < 0 || BUFFER_SIZE == 0)
 		return (NULL);
-	state = -1;
-	while (state < 0)
+	state[0] = -1;
+	line = (char *)ft_calloc(1, sizeof(char));
+	if (!line)
+		return (NULL);
+	buffer[BUFFER_SIZE] = '\0';
+	while (state[0] < 0)
 	{
-		state = check_str(buffer);
+		state[0] = check_str(buffer);
 		line = case_manager(state, fd, buffer, line);
 		if (!line)
 			return (NULL);
+		if (state[0] == -2 && buffer[0] == '\0')
+			return (free(line), NULL);
 	}
 	return (line);
 }

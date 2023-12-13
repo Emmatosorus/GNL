@@ -4,14 +4,45 @@
 
 int main(void)
 {
-	char	*filename = "/home/epolitze/Documents/GNL_folders/GNL_git/GNL Attempt 3/test.txt";
+	char	*filename = "/home/epolitze/Documents/GNL_folders/GNL_git/GNL Attempt 5/test.txt";
 	int		fd = open(filename, O_RDONLY);
 	char	*str;
 
 	str = get_next_line(fd);
-	printf("%s", str);
-	str = get_next_line(fd);
-	printf("%s", str);
+	printf("%s\n", str);
 	free(str);
+
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+	
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+
+	str = get_next_line(fd);
+	printf("%s\n", str);
+	free(str);
+	
 	close(fd);
 }
