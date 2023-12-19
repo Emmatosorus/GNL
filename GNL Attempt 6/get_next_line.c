@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:57:54 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/18 18:15:02 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/19 15:05:02 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ char	*create_line(int fd, char *buffer, ssize_t *read_len)
 		return (NULL);
 	if (buffer[0] == '\0')
 		*read_len = read(fd, line, BUFFER_SIZE);
-	else{
+	else
+	{
 		ft_strncpy(line, buffer, ft_strlen(buffer));
 		return (line);
 	}
@@ -78,7 +79,7 @@ char	*get_next_line(int fd)
 	char		*line;
 	ssize_t		read_len;
 	static char	buffer[BUFFER_SIZE + 1] = "\0";
-	
+
 	line = NULL;
 	if (BUFFER_SIZE < 1 || read(fd, 0, 0) < 0)
 		return (NULL);
@@ -91,12 +92,13 @@ char	*get_next_line(int fd)
 			line = read_more(fd, line, &read_len);
 		if (line && (ft_strchr(line, '\n') != -1 || read_len >= 0))
 			line = split_line(line, buffer);
-		if (!line)
-			return (NULL);
+		if (!line || read_len == -1)
+		{
+			ft_bzero(buffer, BUFFER_SIZE);
+			return (free(line), NULL);
+		}
 		if (read_len == 0)
 			return (line);
-		if (read_len == -1)
-			return (free(line), NULL);
 	}
 	return (line);
 }

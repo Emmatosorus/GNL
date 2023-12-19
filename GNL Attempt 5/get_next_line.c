@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:57:54 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/13 18:08:42 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/13 18:43:24 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ char	*save_buf(char *buffer, char *line, int fd)
 	return (line);
 }
 
-char	*get_line(char *buffer, char *line)
+char	*get_line(char *buffer, char *line, ssize_t stat)
 {
 	char	*total;
 	char	*tmp2;
@@ -34,14 +34,14 @@ char	*get_line(char *buffer, char *line)
 	total = ft_strjoin(line, buffer);
 	if (!total)
 		return (free(line), NULL);
-	cr_p = check_str(total);
+	cr_p = check_str(total, stat);
 	tmp2 = ft_calloc(cr_p + 2, sizeof(char));
 	if (!tmp2)
 		return (free(total), free(line), NULL);
 	i = -1;
 	while (total[++i] && i <= cr_p)
 		tmp2[i] = total[i];
-	cr_p = check_str(buffer) + 1;
+	cr_p = check_str(buffer, stat) + 1;
 	if (cr_p != BUFFER_SIZE && BUFFER_SIZE != 1)
 		buffer = ft_memmove(buffer, buffer + cr_p, ft_strlen(buffer + cr_p));
 	else
@@ -51,7 +51,7 @@ char	*get_line(char *buffer, char *line)
 	return (free(total), line);
 }
 
-ssize_t	check_str(char *str)
+ssize_t	check_str(char *str, ssize_t stat)
 {
 	ssize_t	i;
 
@@ -60,6 +60,8 @@ ssize_t	check_str(char *str)
 		return (-1);
 	while (str[i] && str[i] != '\n')
 		i++;
+	if (stat == -3)
+		return (i - 1);
 	if (str[i] == '\0')
 		return (-2);
 	return (i);
@@ -85,12 +87,12 @@ char	*case_manager(ssize_t *state, int fd, char *buffer, char *line)
 				return (free(line), NULL);
 		}
 		else
-			line = get_line(buffer, line);
+			line = get_line(buffer, line, state[0]);
 		if (!line)
 			return (NULL);
 	}
-	if (tmp == -2)
-		state[0] = -2;
+	if (tmp == -2 || tmp == -3)
+		state[0] = tmp;
 	return (line);
 }
 
@@ -109,7 +111,7 @@ char	*get_next_line(int fd)
 	buffer[BUFFER_SIZE] = '\0';
 	while (state[0] < 0)
 	{
-		state[0] = check_str(buffer);
+		state[0] = check_str(buffer, state[0]);
 		line = case_manager(state, fd, buffer, line);
 		if (!line)
 			return (NULL);

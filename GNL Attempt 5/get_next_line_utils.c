@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:58:13 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/13 18:08:51 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/13 18:23:03 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ ssize_t	read_file(int fd, char *buffer, char *line)
 	else if (read_len != BUFFER_SIZE)
 	{
 		buffer[read_len] = '\0';
-		// return smthg
+		return (-3);
 	}
 	buffer[read_len] = '\0';
 	return (read_len);

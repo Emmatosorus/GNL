@@ -6,7 +6,7 @@
 /*   By: epolitze <epolitze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 09:57:32 by epolitze          #+#    #+#             */
-/*   Updated: 2023/12/13 17:42:15 by epolitze         ###   ########.fr       */
+/*   Updated: 2023/12/13 18:21:05 by epolitze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <unistd.h>
 
 char	*get_next_line(int fd);
-ssize_t	check_str(char *str);
+ssize_t	check_str(char *str, ssize_t stat);
 size_t	ft_strlen(const char *str);
 void	*ft_calloc(size_t n, size_t size);
 char	*ft_strjoin(char const *s1, char const *s2);
